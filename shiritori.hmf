@@ -37,8 +37,8 @@ ProjectFolder	shiritori\
 ProjectWorkFolder	shiritori\work\
 
 [OptionData]
-CBL02_OPITEM_FAKE_MW	Systemw’èÒ²İÌßÛ¼Şª¸Äw’èî•ñ
-CBL02_OPITEM_SETMAIN	Ò²İÌ§²Ùw’èî•ñ	shiritori.cbl
+CBL02_OPITEM_FAKE_MW	SystemæŒ‡å®šãƒ¡ã‚¤ãƒ³ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆæŒ‡å®šæƒ…å ±
+CBL02_OPITEM_SETMAIN	ãƒ¡ã‚¤ãƒ³ãƒ•ã‚¡ã‚¤ãƒ«æŒ‡å®šæƒ…å ±	shiritori.cbl
 CBL02_OPITEM_DebugCompati	-DebugCompati
 [EndSection]
 
@@ -77,7 +77,7 @@ ProjectFolder	shiritori_trunk\
 ProjectWorkFolder	shiritori_trunk\work\
 
 [OptionData]
-CBL02_OPITEM_FAKE_MW	Systemw’èÒ²İÌßÛ¼Şª¸Äw’èî•ñ
+CBL02_OPITEM_FAKE_MW	SystemæŒ‡å®šãƒ¡ã‚¤ãƒ³ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆæŒ‡å®šæƒ…å ±
 CBL02_OPITEM_DebugCompati	-DebugCompati
 CBL02_OPITEM_DebugData	-DebugData
 CBL02_OPITEM_DebugInf	-DebugInf
@@ -85,7 +85,7 @@ CBL02_OPITEM_DebugInf_Trace	Trace
 CBL02_OPITEM_Optimize_0	0
 CBL02_OPITEM_Optimize	-Optimize
 CBL02_OPITEM_TDInf	-TDInf
-CBL02_OPITEM_SETMAIN	Ò²İÌ§²Ùw’èî•ñ	shiritori.cbf
+CBL02_OPITEM_SETMAIN	ãƒ¡ã‚¤ãƒ³ãƒ•ã‚¡ã‚¤ãƒ«æŒ‡å®šæƒ…å ±	shiritori.cbf
 [EndSection]
 
 [FileData]
@@ -168,7 +168,7 @@ ProjectFolder	shiritori_vs_cpu\
 ProjectWorkFolder	shiritori_vs_cpu\work\
 
 [OptionData]
-CBL02_OPITEM_FAKE_MW	Systemw’èÒ²İÌßÛ¼Şª¸Äw’èî•ñ
+CBL02_OPITEM_FAKE_MW	SystemæŒ‡å®šãƒ¡ã‚¤ãƒ³ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆæŒ‡å®šæƒ…å ±
 CBL02_OPITEM_Optimize_0	0
 CBL02_OPITEM_Optimize	-Optimize
 CBL02_OPITEM_DebugInf	-DebugInf
@@ -176,7 +176,7 @@ CBL02_OPITEM_DebugInf_Trace	Trace
 CBL02_OPITEM_DebugCompati	-DebugCompati
 CBL02_OPITEM_DebugData	-DebugData
 CBL02_OPITEM_TDInf	-TDInf
-CBL02_OPITEM_SETMAIN	Ò²İÌ§²Ùw’èî•ñ	shiritori.cbf
+CBL02_OPITEM_SETMAIN	ãƒ¡ã‚¤ãƒ³ãƒ•ã‚¡ã‚¤ãƒ«æŒ‡å®šæƒ…å ±	shiritori.cbf
 [EndSection]
 
 [FileData]
@@ -269,7 +269,7 @@ ProjectWorkFolder	shiritori_common\
 NecessaryLink
 
 [OptionData]
-CBL02_OPITEM_FAKE_NOMAIN	ƒƒCƒ“ƒvƒƒOƒ‰ƒ€‚È‚µ
+CBL02_OPITEM_FAKE_NOMAIN	ãƒ¡ã‚¤ãƒ³ãƒ—ãƒ­ã‚°ãƒ©ãƒ ãªã—
 CBL02_OPITEM_DebugCompati	-DebugCompati
 CBL02_OPITEM_DebugData	-DebugData
 CBL02_OPITEM_TDInf	-TDInf

@@ -1,9 +1,9 @@
 *******************************************************************************
 * FILE NAME : J:\cobol\jisyu2\04 shiritori_common\S-FILE.cbf
-* KIND      : ں��ގd�l
+* KIND      : レコード仕様
 * 
 * CURRENCY SIGN IS \
-* DECIMAL-POINT IS COMMA : �w��Ȃ�
+* DECIMAL-POINT IS COMMA : 指定なし
 *******************************************************************************
 01 S-REC.
  02 S-WORD PIC X(50).

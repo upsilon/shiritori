@@ -21,7 +21,7 @@
        01 IN-STR        PIC X(50).
        01 MY-NAME       PIC X(20).
 
-       78 DEFAULT-NAME  VALUE "������".
+       78 DEFAULT-NAME  VALUE "名無し".
        
        01 EOF-FLG       PIC X VALUE LOW-VALUE.
         88 EOF                VALUE HIGH-VALUE.
@@ -33,21 +33,21 @@
        
        01 R             PIC 9(02).
        
-      * �����񕪊��p�̃e�[�u��
+      * 文字列分割用のテーブル
        01 STR-TMP.
-           02 C         PIC X(02) OCCURS 25 INDEXED BY P. *> C �� Character �� C
+           02 C         PIC X(02) OCCURS 25 INDEXED BY P. *> C は Character の C
 
        01 STR-TMP2.
-           02 D         PIC X(02) OCCURS 25 INDEXED BY Q. *> C �̎��Ȃ̂� D
+           02 D         PIC X(02) OCCURS 25 INDEXED BY Q. *> C の次なので D
        
        01 LOG-TBL.
-           02 L         OCCURS 10000 INDEXED BY I. *>����Ƃ肪1����ȏ㑱���Ƃ��������Ȃ�܂�(^^;
+           02 L         OCCURS 10000 INDEXED BY I. *>しりとりが1万語以上続くとおかしくなります(^^;
              03 L-WORD  PIC X(50).
              03 L-NAME  PIC X(20).
 
        01 ALLOW-TBL.
-           02 A         PIC X(02) OCCURS 100 INDEXED PA. *> �g�p�\�ȂЂ炪��
-           02 B         PIC X(02) OCCURS 100 INDEXED PB. *> �g�p�\�ł͂�����̂́A�ꓪ�ɂ͎g���Ȃ�����
+           02 A         PIC X(02) OCCURS 100 INDEXED PA. *> 使用可能なひらがな
+           02 B         PIC X(02) OCCURS 100 INDEXED PB. *> 使用可能ではあるものの、語頭には使えない文字
        PROCEDURE                DIVISION.
        MAIN.
            PERFORM INIT
@@ -59,7 +59,7 @@
            CLOSE S-FILE
            
            PERFORM INPUT-WORD
-           PERFORM UNTIL IN-STR = "END" OR "end" OR "�����" OR "�I���"
+           PERFORM UNTIL IN-STR = "END" OR "end" OR "おわり" OR "終わり"
              IF IN-STR NOT = SPACE
              THEN
                PERFORM CHECK-WORD
@@ -83,27 +83,27 @@
        
        INIT.
       * =========================================================
-      * =                       ������                          =
+      * =                       初期化                          =
       * =========================================================
            INITIALIZE LOG-TBL
-           MOVE 1 TO W-NUM    *> W-NUM�ɂ͏�ɁA���ɏ������ވʒu������悤�ɂ���
+           MOVE 1 TO W-NUM    *> W-NUMには常に、次に書き込む位置が入るようにする
            PERFORM ALLOW-INIT.
        
        ALLOW-INIT.
       * =========================================================
-      * =              �g�p�\�ȕ����ꗗ��ǂݍ���             =
+      * =              使用可能な文字一覧を読み込む             =
       * =========================================================
            OPEN INPUT ALLOW-LIST
            READ ALLOW-LIST INTO ALLOW-TBL
            CLOSE ALLOW-LIST.
        
        INPUT-NAME.
-           DISPLAY "���O����͂��Ă��������B"
+           DISPLAY "名前を入力してください。"
            ACCEPT MY-NAME
            IF MY-NAME = SPACE THEN
              MOVE DEFAULT-NAME TO MY-NAME
-             DISPLAY "�f�t�H���g�̖��O�u" DEFAULT-NAME "�v
-      -                                             "�ɐݒ肳��܂����B"
+             DISPLAY "デフォルトの名前「" DEFAULT-NAME "」
+      -                                             "に設定されました。"
            END-IF.
 
        INPUT-WORD.
@@ -111,7 +111,7 @@
            ACCEPT IN-STR.
        
        CHECK-WORD.
-           MOVE LOW-VALUE TO ERR-FLG *> �t���O������
+           MOVE LOW-VALUE TO ERR-FLG *> フラグ初期化
            
            IF W-NUM NOT = 1 THEN
              MOVE L-WORD(W-NUM - 1) TO STR-TMP
@@ -121,35 +121,35 @@
            PERFORM CHECK-INVALID-CHAR
            
            IF W-NUM NOT = 1 THEN
-             PERFORM CHECK-START-WITH *> ���ڈȍ~�̓��͂̏ꍇ�̂�
+             PERFORM CHECK-START-WITH *> 二回目以降の入力の場合のみ
            END-IF
            
            PERFORM CHECK-END-WITH
            PERFORM CHECK-CONTAINS.
        
        CHECK-INVALID-CHAR.
-       *> �� CHECK-WORD���ł̃`�F�b�N�����̈ꕔ�ł�
+       *> ＠ CHECK-WORD内でのチェック処理の一部です
        *> ---------------------------------------------------------
-       *> - ���͂��ꂽ�����ɁA�g�p�ł��Ȃ��������܂܂�Ă��Ȃ���  -
-       *> -   �� �Ђ炪�Ȃƈꕔ�̋L���ȊO�͎g�p�ł��Ȃ�           -
+       *> - 入力された文字に、使用できない文字が含まれていないか  -
+       *> -   ※ ひらがなと一部の記号以外は使用できない           -
        *> ---------------------------------------------------------
            PERFORM VARYING Q FROM 1 BY 1 UNTIL D(Q) = SPACE
              SET PA TO 1
              SEARCH A
               AT END
-             *> �܂�B�Ɏg�p�ł��镶���Ƃ��Ċi�[����Ă���\�������邽�߁A�����ɂ̓G���[��\�����Ȃ�
+             *> まだBに使用できる文字として格納されている可能性があるため、すぐにはエラーを表示しない
                SET ERR TO TRUE
               WHEN A(PA) = D(Q)
                CONTINUE
              END-SEARCH
              
              IF ERR THEN
-               MOVE LOW-VALUE TO ERR-FLG *> �܂��G���[�ł͂Ȃ��\�������邽��
+               MOVE LOW-VALUE TO ERR-FLG *> まだエラーではない可能性があるため
                SET PB TO 1
                SEARCH B
                 AT END
                  SET ERR TO TRUE
-                 DISPLAY "!! �u" D(Q) "�v�͎g�p�ł��Ȃ������炵���ł�"
+                 DISPLAY "!! 「" D(Q) "」は使用できない文字らしいです"
                  EXIT PERFORM
                 WHEN B(PB) = D(Q)
                  CONTINUE
@@ -158,78 +158,78 @@
            END-PERFORM.
        
        CHECK-START-WITH.
-       *> �� CHECK-WORD���ł̃`�F�b�N�����̈ꕔ�ł�
+       *> ＠ CHECK-WORD内でのチェック処理の一部です
        *> ------------------------------------------------------------
-       *> - ���͂��ꂽ�P�ꂪ�A�O�̒P��̍Ō�̕�������n�܂��Ă��邩 -
+       *> - 入力された単語が、前の単語の最後の文字から始まっているか -
        *> ------------------------------------------------------------
            PERFORM FIND-CHAR
            IF C(P) NOT = D(1) THEN
              SET ERR TO TRUE
-             DISPLAY "!! �u" C(P) "�v����n�܂�P�����͂��Ă�������"
+             DISPLAY "!! 「" C(P) "」から始まる単語を入力してください"
            END-IF.
        
        CHECK-END-WITH.
-       *> �� CHECK-WORD���ł̃`�F�b�N�����̈ꕔ�ł�
+       *> ＠ CHECK-WORD内でのチェック処理の一部です
        *> ---------------------------------------------------------
-       *> -       ���͂��ꂽ�P�ꂪ�u��v�ŏI����Ă��Ȃ���        -
+       *> -       入力された単語が「ん」で終わっていないか        -
        *> ---------------------------------------------------------
            PERFORM FIND-CHAR2
-           IF D(Q) = "��" THEN
+           IF D(Q) = "ん" THEN
              SET ERR TO TRUE
-             DISPLAY "!! ���͂��ꂽ�P�ꂪ�u��v�ŏI����Ă��܂�"
+             DISPLAY "!! 入力された単語が「ん」で終わっています"
            END-IF.
        
        CHECK-CONTAINS.
-       *> �� CHECK-WORD���ł̃`�F�b�N�����̈ꕔ�ł�
+       *> ＠ CHECK-WORD内でのチェック処理の一部です
        *> ---------------------------------------------------------
-       *> -        ���͂��ꂽ�P�ꂪ���łɎg���Ă��Ȃ���         -
+       *> -        入力された単語がすでに使われていないか         -
        *> ---------------------------------------------------------
            SET I TO 1
            SEARCH L
             AT END CONTINUE
-            WHEN L-WORD(I) = SPACE  CONTINUE  *> SPACE�ȍ~�ɂ̓f�[�^������
+            WHEN L-WORD(I) = SPACE  CONTINUE  *> SPACE以降にはデータが無い
             WHEN L-WORD(I) = IN-STR
              SET ERR TO TRUE
-             DISPLAY "!! ���̒P��͂����g���Ă���炵���ł���"
+             DISPLAY "!! その単語はもう使われているらしいですよ"
            END-SEARCH.
        
        FIND-CHAR.
        *> =========================================================
-       *> =          STR-TMP���̍Ō�̕����̈ʒu��T��            =
+       *> =          STR-TMP内の最後の文字の位置を探す            =
        *> =========================================================
            PERFORM VARYING P FROM 1 BY 1 UNTIL C(P) = SPACE
              CONTINUE
            END-PERFORM
            SET P DOWN BY 1
            
-         *> �Ō�̕������u�[�v�u�B�v�u�A�v�Ȃǂł���Ί����߂�
+         *> 最後の文字が「ー」「。」「、」などであれば巻き戻す
            PERFORM VARYING P FROM P BY -1 UNTIL P = 0
              SET PB TO 1
              SEARCH B
               AT END
-               EXIT PERFORM            *> �����߂��������Ȃ���΃��[�v�𔲂���
+               EXIT PERFORM            *> 巻き戻す文字がなければループを抜ける
               WHEN B(PB) = C(P)
-               CONTINUE                *> �������͉������Ȃ��Ń��[�v�𑱂���
+               CONTINUE                *> こっちは何もしないでループを続ける
              END-SEARCH
            END-PERFORM.
        
        FIND-CHAR2.
        *> =========================================================
-       *> =         STR-TMP2���̍Ō�̕����̈ʒu��T��            =
+       *> =         STR-TMP2内の最後の文字の位置を探す            =
        *> =========================================================
            PERFORM VARYING Q FROM 1 BY 1 UNTIL D(Q) = SPACE
              CONTINUE
            END-PERFORM
            SET Q DOWN BY 1
            
-         *> �Ō�̕������u�[�v�u�B�v�u�A�v�Ȃǂł���Ί����߂�
+         *> 最後の文字が「ー」「。」「、」などであれば巻き戻す
            PERFORM VARYING Q FROM Q BY -1 UNTIL Q = 0
              SET PB TO 1
              SEARCH B
               AT END
-               EXIT PERFORM            *> �����߂��������Ȃ���΃��[�v�𔲂���
+               EXIT PERFORM            *> 巻き戻す文字がなければループを抜ける
               WHEN B(PB) = D(Q)
-               CONTINUE                *> �������͉������Ȃ��Ń��[�v�𑱂���
+               CONTINUE                *> こっちは何もしないでループを続ける
              END-SEARCH
            END-PERFORM.
        
@@ -237,12 +237,12 @@
            IF W-NUM = 1
            THEN
              DISPLAY SPACE
-             DISPLAY "�܂��N���P�����͂��Ă��܂���B"
+             DISPLAY "まだ誰も単語を入力していません。"
            ELSE
              DISPLAY SPACE
-             DISPLAY "*** ���O�ɑ���ꂽ�P��T�� ***"
+             DISPLAY "*** 直前に送られた単語５つ ***"
              
-      *       ���O��5�܂ł�\������
+      *       直前の5つまでを表示する
              SET I TO W-NUM
              SET I DOWN BY 5
              IF I < 1 THEN
@@ -253,18 +253,18 @@
              END-PERFORM
              
              SUBTRACT 1 FROM W-NUM
-             DISPLAY "�����܂� " W-NUM " �̒P�ꂪ���͂���܂����B"
+             DISPLAY "ここまで " W-NUM " 個の単語が入力されました。"
              ADD 1 TO W-NUM
              
              MOVE L-WORD(W-NUM - 1) TO STR-TMP
              PERFORM FIND-CHAR
              DISPLAY SPACE
-             DISPLAY "�u" C(P) "�v����n�܂�P�����͂��Ă��������B"
+             DISPLAY "「" C(P) "」から始まる単語を入力してください。"
            END-IF.
        
        F-READ.
-      *     �O��ǂݍ��񂾏ꏊ���瑱����ǂݍ��߂Ηǂ����߁A
-      *     MOVE 1 TO W-NUM �͕s�v�ƂȂ�B
+      *     前回読み込んだ場所から続きを読み込めば良いため、
+      *     MOVE 1 TO W-NUM は不要となる。
            MOVE LOW-VALUE TO EOF-FLG
            PERFORM UNTIL EOF
              READ S-FILE
@@ -285,13 +285,13 @@
                MOVE MY-NAME TO S-NAME L-NAME(W-NUM)
                WRITE S-REC
                  INVALID KEY
-                   DISPLAY "!! �N������ɏ�������ł��܂����悤�ł��B"
+                   DISPLAY "!! 誰かが先に書き込んでしまったようです。"
                    SET ERR TO TRUE
                  NOT INVALID KEY
                    ADD 1 TO W-NUM
                END-WRITE
              WHEN L-WORD(I) = IN-STR
-               DISPLAY "!! ���̒P��͊��Ɏg���Ă��܂��B"
+               DISPLAY "!! その単語は既に使われています。"
                SET ERR TO TRUE
            END-SEARCH.
 
