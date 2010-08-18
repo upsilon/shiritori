@@ -1,0 +1,356 @@
+[Header]
+ManagerID	Cobol2002
+PMFileFormatVersion	2
+PMFileName	shiritori
+Folder	J:\cobol\shiritori
+PMType	1
+ActiveProjectName	shiritori_trunk
+[EndSection]
+
+[Relation]
+1	shiritori
+1	shiritori_common
+2	shiritori_trunk
+2	shiritori_vs_cpu
+1	shiritori_trunk
+1	shiritori_vs_cpu
+[EndSection]
+
+[Profile]
+Project	shiritori_trunk
+ProgramName	0	shiritori_trunk\shiritori.exe
+[EndSection]
+
+[Register]
+F	0	shiritori_common\ALLOW-LIST.cbf	PC_COBOL_COPY_FREE
+F	0	shiritori_common\S-FILE.cbf	PC_COBOL_COPY_FREE
+F	0	shiritori_common\WORD-LIST.cbf	PC_COBOL_COPY_FREE
+[EndSection]
+
+[Project]
+Name	shiritori
+ProductLogicalName	PC_EXE
+ProductFolder	shiritori\
+ProductName	shiritori.exe
+ProjectLogicalName	PC_COBOL_PROJECT
+ProjectFolder	shiritori\
+ProjectWorkFolder	shiritori\work\
+
+[OptionData]
+CBL02_OPITEM_FAKE_MW	System指定ﾒｲﾝﾌﾟﾛｼﾞｪｸﾄ指定情報
+CBL02_OPITEM_SETMAIN	ﾒｲﾝﾌｧｲﾙ指定情報	shiritori.cbl
+CBL02_OPITEM_DebugCompati	-DebugCompati
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_COBOL_SOURCE
+BaseFolderIsPM
+Folder	shiritori\
+Name	shiritori.cbl
+
+[OptionData]
+CBL02_OPITEM_Main_System	-Main,System
+[EndSection]
+
+[EndSection]
+
+[FileData]
+Type	2
+LogicalName	PC_OBJECT
+ExistUnderWKFolder
+BaseFolderIsPM
+Folder	shiritori\
+Name	shiritori.obj
+
+[EndSection]
+
+[EndSection]
+
+[Project]
+Name	shiritori_trunk
+ProductLogicalName	PC_EXE
+ProductFolder	shiritori_trunk\
+ProductName	shiritori.exe
+ProjectLogicalName	PC_COBOL_PROJECT
+ProjectFolder	shiritori_trunk\
+ProjectWorkFolder	shiritori_trunk\work\
+
+[OptionData]
+CBL02_OPITEM_FAKE_MW	System指定ﾒｲﾝﾌﾟﾛｼﾞｪｸﾄ指定情報
+CBL02_OPITEM_DebugCompati	-DebugCompati
+CBL02_OPITEM_DebugData	-DebugData
+CBL02_OPITEM_DebugInf	-DebugInf
+CBL02_OPITEM_DebugInf_Trace	Trace
+CBL02_OPITEM_Optimize_0	0
+CBL02_OPITEM_Optimize	-Optimize
+CBL02_OPITEM_TDInf	-TDInf
+CBL02_OPITEM_SETMAIN	ﾒｲﾝﾌｧｲﾙ指定情報	shiritori.cbf
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_COBOL_WDFFILE
+BaseFolderIsPM
+Folder	shiritori_trunk\
+Name	GAMEN.wdf
+
+[EndSection]
+
+[FileData]
+Type	2
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_trunk\
+Name	GAMEN.cbf
+
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_COBOL_SOURCE_FREE
+BaseFolderIsPM
+Folder	shiritori_trunk\
+Name	shiritori.cbf
+
+[OptionData]
+CBL02_OPITEM_Main_System	-Main,System
+[EndSection]
+
+[EndSection]
+
+[FileData]
+Type	2
+LogicalName	PC_OBJECT
+ExistUnderWKFolder
+BaseFolderIsPM
+Folder	shiritori_trunk\work\
+Name	shiritori.obj
+
+[EndSection]
+
+[FileData]
+Type	1
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_trunk\
+Name	GAMEN.CBF
+
+[EndSection]
+
+[FileData]
+Type	1
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	ALLOW-LIST.cbf
+
+[EndSection]
+
+[FileData]
+Type	1
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	S-FILE.cbf
+
+[EndSection]
+
+[EndSection]
+
+[Project]
+Name	shiritori_vs_cpu
+ProductLogicalName	PC_EXE
+ProductFolder	shiritori_vs_cpu\
+ProductName	shiritori.exe
+ProjectLogicalName	PC_COBOL_PROJECT
+ProjectFolder	shiritori_vs_cpu\
+ProjectWorkFolder	shiritori_vs_cpu\work\
+
+[OptionData]
+CBL02_OPITEM_FAKE_MW	System指定ﾒｲﾝﾌﾟﾛｼﾞｪｸﾄ指定情報
+CBL02_OPITEM_Optimize_0	0
+CBL02_OPITEM_Optimize	-Optimize
+CBL02_OPITEM_DebugInf	-DebugInf
+CBL02_OPITEM_DebugInf_Trace	Trace
+CBL02_OPITEM_DebugCompati	-DebugCompati
+CBL02_OPITEM_DebugData	-DebugData
+CBL02_OPITEM_TDInf	-TDInf
+CBL02_OPITEM_SETMAIN	ﾒｲﾝﾌｧｲﾙ指定情報	shiritori.cbf
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_COBOL_SOURCE_FREE
+BaseFolderIsPM
+Folder	shiritori_vs_cpu\
+Name	shiritori.cbf
+
+[OptionData]
+CBL02_OPITEM_Main_System	-Main,System
+[EndSection]
+
+[EndSection]
+
+[FileData]
+Type	2
+LogicalName	PC_OBJECT
+ExistUnderWKFolder
+BaseFolderIsPM
+Folder	shiritori_vs_cpu\work\
+Name	shiritori.obj
+
+[EndSection]
+
+[FileData]
+Type	1
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	ALLOW-LIST.cbf
+
+[EndSection]
+
+[FileData]
+Type	1
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	S-FILE.cbf
+
+[EndSection]
+
+[FileData]
+Type	1
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	WORD-LIST.cbf
+
+[EndSection]
+
+[FileData]
+Type	1
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_vs_cpu\
+Name	GAMEN.CBF
+
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_COBOL_WDFFILE
+BaseFolderIsPM
+Folder	shiritori_vs_cpu\
+Name	GAMEN.wdf
+
+[EndSection]
+
+[FileData]
+Type	2
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_vs_cpu\
+Name	GAMEN.cbf
+
+[EndSection]
+
+[EndSection]
+
+[Project]
+Name	shiritori_common
+ProductLogicalName	PC_EXE
+ProductFolder	shiritori_common\
+ProductName	shiritori.exe
+ProjectLogicalName	PC_COBOL_PROJECT
+ProjectFolder	shiritori_common\
+ProjectWorkFolder	shiritori_common\
+NecessaryLink
+
+[OptionData]
+CBL02_OPITEM_FAKE_NOMAIN	メインプログラムなし
+CBL02_OPITEM_DebugCompati	-DebugCompati
+CBL02_OPITEM_DebugData	-DebugData
+CBL02_OPITEM_TDInf	-TDInf
+CBL02_OPITEM_DebugInf	-DebugInf
+CBL02_OPITEM_DebugInf_Trace	Trace
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_COBOL_RDFFILE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	ALLOW-LIST.rdf
+
+[EndSection]
+
+[FileData]
+Type	2
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	ALLOW-LIST.cbf
+
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_A_FILE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	WORD-LIST.txt
+ForceCatalog
+NecessaryBuild
+
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_A_FILE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	ALLOW-LIST.txt
+ForceCatalog
+NecessaryBuild
+
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_COBOL_RDFFILE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	S-FILE.rdf
+
+[EndSection]
+
+[FileData]
+Type	2
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	S-FILE.cbf
+
+[EndSection]
+
+[FileData]
+Type	0
+LogicalName	PC_COBOL_RDFFILE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	WORD-LIST.rdf
+
+[EndSection]
+
+[FileData]
+Type	2
+LogicalName	PC_COBOL_COPY_FREE
+BaseFolderIsPM
+Folder	shiritori_common\
+Name	WORD-LIST.cbf
+
+[EndSection]
+
+[EndSection]

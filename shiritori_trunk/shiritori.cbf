@@ -1,0 +1,384 @@
+IDENTIFICATION          DIVISION.
+PROGRAM-ID.     SHIRITORI.
+ENVIRONMENT             DIVISION.
+INPUT-OUTPUT            SECTION.
+FILE-CONTROL.
+  SELECT OPTIONAL S-FILE ASSIGN "G:\COBOL\SHIRITORI.TXT"
+    ORGANIZATION RELATIVE
+    ACCESS MODE  DYNAMIC
+    RELATIVE KEY W-NUM
+    FILE STATUS  F-STAT.
+
+  SELECT ALLOW-LIST ASSIGN "..\04 SHIRITORI_COMMON\ALLOW-LIST.TXT"
+    ORGANIZATION LINE SEQUENTIAL.
+DATA                    DIVISION.
+FILE                    SECTION.
+FD S-FILE.
+COPY "S-FILE.CBF".
+
+FD ALLOW-LIST.
+COPY "ALLOW-LIST.CBF".
+WORKING-STORAGE         SECTION.
+78 DEFAULT-NAME VALUE "名無し".
+
+01 EOF-FLG      PIC X VALUE LOW-VALUE.
+  88 EOF              VALUE HIGH-VALUE.
+
+01 ERR-FLG      PIC X VALUE LOW-VALUE.
+  88 ERR              VALUE HIGH-VALUE.
+
+01 W-NUM        PIC 9(04).
+01 F-STAT       PIC X(02).
+
+01 CNT          PIC 9(02).
+
+*> 文字列分割用のテーブル
+01 STR-TMP.
+  02 C          PIC X(02) OCCURS 25 INDEXED P. *> C は Character の C
+
+01 STR-TMP2.
+  02 D          PIC X(02) OCCURS 25 INDEXED Q. *> C の次なので D
+
+01 LOG-TBL.
+  02 L          OCCURS 10000 INDEXED I. *>しりとりが1万語以上続くとおかしくなります(^^;
+    03 L-WORD   PIC X(50).
+    03 L-NAME   PIC X(20).
+
+*> 使用可能な文字 (ALLOW-LIST.TXTから読込)
+01 ALLOW-TBL.
+  02 A          PIC X(02) OCCURS 100 INDEXED PA. *> 使用可能なひらがな
+  02 B          PIC X(02) OCCURS 100 INDEXED PB. *> 使用可能ではあるものの、語頭には使えない文字
+
+WINDOW                  SECTION.
+COPY "GAMEN.CBF".
+
+PROCEDURE               DIVISION.
+
+DECLARATIVES.
+FILE-ERR SECTION.
+*> =========================================================
+*> =           S-FILEでエラーが起きた場合の処理            =
+*> =========================================================
+    USE AFTER ERROR PROCEDURE ON S-FILE.
+    MOVE "きっと誰かが書き込み中のようです。一休みしてからもう一度読み込んでください。" TO STAT
+    DISPLAY STAT UPON WINDOW
+    SET FIELD STAT TO HIGH-INTENSITY.
+ERR-END.
+    EXIT.
+END DECLARATIVES.
+
+MAIN.
+*> *********************************************************
+*> *                     メインの処理                      *
+*> *********************************************************
+    PERFORM INIT                        *> 初期化
+    
+    PERFORM INPUT-NAME                  *> 名前を入力
+    
+    PERFORM F-READ-TRANS                *> ファイル読み込み
+    
+    PERFORM INPUT-WORD                  *> 単語を入力
+    
+    PERFORM UNTIL IN-WORD = "おわり" OR "終わり" OR "終はり" OR "END" OR "end"
+      IF IN-WORD NOT = SPACE
+      THEN
+        PERFORM CHECK-WORD              *> 入力された単語のチェック
+        IF NOT ERR THEN
+          PERFORM F-WRITE-TRANS         *> 単語を書き込み
+        END-IF
+      ELSE
+        PERFORM F-READ-TRANS            *> 再度ファイルを読み込む
+      END-IF
+      PERFORM INPUT-WORD                *> 単語を入力
+    END-PERFORM
+    STOP RUN.
+
+INIT.
+*> =========================================================
+*> =                       初期化                          =
+*> =========================================================
+    INITIALIZE LOG-TBL
+    MOVE 1 TO W-NUM    *> W-NUMには常に、次に書き込む位置が入るようにする
+    PERFORM ALLOW-INIT.
+
+ALLOW-INIT.
+*> =========================================================
+*> =              使用可能な文字一覧を読み込む             =
+*> =========================================================
+    OPEN INPUT ALLOW-LIST
+    READ ALLOW-LIST INTO ALLOW-TBL
+    CLOSE ALLOW-LIST.
+
+INPUT-NAME.
+*> =========================================================
+*> =                    名前を入力する                     =
+*> =========================================================
+    MOVE "名前を入力してください" TO STAT
+    DISPLAY GAMEN UPON WINDOW
+    ACCEPT MY-NAME FROM WINDOW
+    
+    IF MY-NAME = SPACE THEN
+      MOVE DEFAULT-NAME TO MY-NAME
+      MOVE "デフォルトの名前「" & DEFAULT-NAME & "」に設定されました。" TO STAT
+      DISPLAY GAMEN UPON WINDOW
+    END-IF
+    
+    SET FIELD MY-NAME TO PROTECT.
+
+INPUT-WORD.
+*> =========================================================
+*> =                    単語を入力する                     =
+*> =========================================================
+    PERFORM DSP-WORD
+    
+    MOVE SPACE TO IN-WORD
+    ACCEPT IN-WORD FROM WINDOW
+    
+    ERASE FIELD STAT
+    SET FIELD STAT TO ATTRIBUTE.
+
+CHECK-WORD.
+*> =========================================================
+*> =       使用できない文字が使われていないかチェック      =
+*> =========================================================
+    MOVE LOW-VALUE TO ERR-FLG *> フラグ初期化
+    
+    IF W-NUM NOT = 1 THEN
+      MOVE L-WORD(W-NUM - 1) TO STR-TMP
+    END-IF
+    MOVE IN-WORD TO STR-TMP2
+    
+    PERFORM CHECK-INVALID-CHAR
+    
+    IF W-NUM NOT = 1 THEN
+      PERFORM CHECK-START-WITH *> 二回目以降の入力の場合のみ
+    END-IF
+    
+    PERFORM CHECK-END-WITH
+    PERFORM CHECK-CONTAINS.
+
+CHECK-INVALID-CHAR.
+*> ＠ CHECK-WORD内でのチェック処理の一部です
+*> ---------------------------------------------------------
+*> - 入力された文字に、使用できない文字が含まれていないか  -
+*> -   ※ ひらがなと一部の記号以外は使用できない           -
+*> ---------------------------------------------------------
+    PERFORM VARYING Q FROM 1 BY 1 UNTIL D(Q) = SPACE
+      SET PA TO 1
+      SEARCH A
+       AT END
+      *> まだBに使用できる文字として格納されている可能性があるため、すぐにはエラーを表示しない
+        SET ERR TO TRUE
+       WHEN A(PA) = D(Q)
+        CONTINUE
+      END-SEARCH
+      
+      IF ERR THEN
+        MOVE LOW-VALUE TO ERR-FLG *> まだエラーではない可能性があるため
+        SET PB TO 1
+        SEARCH B
+         AT END
+          SET ERR TO TRUE
+          MOVE SPACE TO STAT
+          STRING "「" D(Q) "」は使用できない文字らしいです" DELIMITED SIZE INTO STAT
+          DISPLAY STAT UPON WINDOW
+          SET FIELD STAT TO HIGH-INTENSITY
+          EXIT PERFORM
+         WHEN B(PB) = D(Q)
+          CONTINUE
+        END-SEARCH
+      END-IF
+    END-PERFORM.
+
+CHECK-START-WITH.
+*> ＠ CHECK-WORD内でのチェック処理の一部です
+*> ------------------------------------------------------------
+*> - 入力された単語が、前の単語の最後の文字から始まっているか -
+*> ------------------------------------------------------------
+    PERFORM FIND-CHAR
+    IF C(P) NOT = D(1) THEN
+      SET ERR TO TRUE
+      
+      ERASE FIELD STAT
+      STRING "「" C(P) "」から始まる単語を入力してください" DELIMITED SIZE INTO STAT
+      DISPLAY STAT UPON WINDOW 
+      SET FIELD STAT TO HIGH-INTENSITY
+    END-IF.
+
+CHECK-END-WITH.
+*> ＠ CHECK-WORD内でのチェック処理の一部です
+*> ---------------------------------------------------------
+*> -       入力された単語が「ん」で終わっていないか        -
+*> ---------------------------------------------------------
+    PERFORM FIND-CHAR2
+    IF D(Q) = "ん" THEN
+      SET ERR TO TRUE
+      
+      MOVE "入力された単語が「ん」で終わっています" TO STAT
+      DISPLAY STAT UPON WINDOW
+      SET FIELD STAT TO HIGH-INTENSITY
+    END-IF.
+
+CHECK-CONTAINS.
+*> ＠ CHECK-WORD内でのチェック処理の一部です
+*> ---------------------------------------------------------
+*> -        入力された単語がすでに使われていないか         -
+*> ---------------------------------------------------------
+    SET I TO 1
+    SEARCH L
+     AT END CONTINUE
+     WHEN L-WORD(I) = SPACE  CONTINUE  *> SPACE以降にはデータが無い
+     WHEN L-WORD(I) = IN-WORD
+      SET ERR TO TRUE
+ 
+      MOVE "その単語はもう使われているらしいですよ" TO STAT
+      DISPLAY STAT UPON WINDOW
+      SET FIELD STAT TO HIGH-INTENSITY
+    END-SEARCH.
+
+FIND-CHAR.
+*> =========================================================
+*> =          STR-TMP内の最後の文字の位置を探す            =
+*> =========================================================
+    PERFORM VARYING P FROM 1 BY 1 UNTIL C(P) = SPACE
+      CONTINUE
+    END-PERFORM
+    SET P DOWN BY 1
+    
+  *> 最後の文字が「ー」「。」「、」などであれば巻き戻す
+    PERFORM VARYING P FROM P BY -1 UNTIL P = 0
+      SET PB TO 1
+      SEARCH B
+       AT END
+        EXIT PERFORM            *> 巻き戻す文字がなければループを抜ける
+       WHEN B(PB) = C(P)
+        CONTINUE                *> こっちは何もしないでループを続ける
+      END-SEARCH
+    END-PERFORM.
+
+FIND-CHAR2.
+*> =========================================================
+*> =         STR-TMP2内の最後の文字の位置を探す            =
+*> =========================================================
+    PERFORM VARYING Q FROM 1 BY 1 UNTIL D(Q) = SPACE
+      CONTINUE
+    END-PERFORM
+    SET Q DOWN BY 1
+    
+  *> 最後の文字が「ー」「。」「、」などであれば巻き戻す
+    PERFORM VARYING Q FROM Q BY -1 UNTIL Q = 0
+      SET PB TO 1
+      SEARCH B
+       AT END
+        EXIT PERFORM            *> 巻き戻す文字がなければループを抜ける
+       WHEN B(PB) = D(Q)
+        CONTINUE                *> こっちは何もしないでループを続ける
+      END-SEARCH
+    END-PERFORM.
+
+DSP-WORD.
+*> =========================================================
+*> =         直前に入力された単語を10個表示する            =
+*> =========================================================
+    IF W-NUM = 1
+    THEN
+      MOVE 0 TO WORD-CNT
+      DISPLAY WORD-CNT UPON WINDOW
+    ELSE
+     *> 直前の10個までを表示する
+      SET I TO W-NUM
+      SET I DOWN BY 10
+      IF I < 1 THEN
+        SET I TO 1
+      END-IF
+      MOVE 1 TO CNT
+      PERFORM VARYING I FROM I BY 1 UNTIL I = W-NUM
+        MOVE L-WORD(I) TO DSP-WORD(CNT)
+        MOVE L-NAME(I) TO DSP-NAME(CNT)
+        ADD 1 TO CNT
+      END-PERFORM
+      DISPLAY DSP-LOG UPON WINDOW
+      
+      SUBTRACT 1 FROM W-NUM GIVING WORD-CNT
+      DISPLAY WORD-CNT UPON WINDOW
+      
+      MOVE L-WORD(W-NUM - 1) TO STR-TMP
+      PERFORM FIND-CHAR
+      MOVE C(P) TO NEXT-CHAR
+      DISPLAY NEXT-CHAR UPON WINDOW
+    END-IF.
+
+*>【めも】OPEN文によるファイルロックのされ方の違い
+*>
+*>         │　 　INPUT　　│　　OUTPUT　　│　　 I-O 
+*> ────┼───────┼───────┼───────
+*>   INPUT │同時アクセス可│　早い者勝ち　│　早い者勝ち
+*>  OUTPUT │　早い者勝ち　│　早い者勝ち　│　早い者勝ち
+*>     I-O │　早い者勝ち　│　早い者勝ち　│　早い者勝ち
+
+F-READ-TRANS.
+*> =========================================================
+*> =          ゲームデータを開き、F-READを呼び出す         =
+*> =========================================================
+*>   このOPEN～CLOSEの中ではS-FILEが共用ロックされるため、
+*>   なるべく早く処理を終わらせる必要がある。
+*>   （詳しくは【めも】を参照）
+    OPEN INPUT S-FILE
+    IF F-STAT NOT = 93 THEN *> 他の人がファイルをロックしていないか
+      PERFORM F-READ
+    END-IF
+    CLOSE S-FILE.
+
+F-WRITE-TRANS.
+*> =========================================================
+*> =         ゲームデータを開き、F-WRITEを呼び出す         =
+*> =========================================================
+*>   このOPEN～CLOSEの中ではS-FILEが排他ロックされるため、
+*>   なるべく早く処理を終わらせる必要がある。
+*>   （詳しくは【めも】を参照）
+    OPEN I-O S-FILE
+    IF F-STAT NOT = 93 THEN *> 他の人がファイルをロックしていないか
+      PERFORM F-WRITE
+      IF ERR THEN
+        PERFORM F-READ  *> 誰かが先に書き込んでいた場合はF-READも呼び出す
+      END-IF
+    END-IF
+    CLOSE S-FILE.
+
+F-READ.
+*> =========================================================
+*> =    ゲームデータから、新しく入力された分を読み込む     =
+*> =========================================================
+  *> 前回読み込んだ場所から続きを読み込めば良いため、
+  *> MOVE 1 TO W-NUM は不要となる。
+    MOVE LOW-VALUE TO EOF-FLG
+    PERFORM UNTIL EOF
+      READ S-FILE
+       INVALID KEY
+        SET EOF TO TRUE
+       NOT INVALID KEY
+        MOVE S-WORD TO L-WORD(W-NUM)
+        MOVE S-NAME TO L-NAME(W-NUM)
+        ADD 1 TO W-NUM
+      END-READ
+    END-PERFORM.
+
+F-WRITE.
+*> =========================================================
+*> =       ゲームデータに、入力された単語を書き込む        =
+*> =========================================================
+    MOVE LOW-VALUE TO ERR-FLG
+    MOVE IN-WORD TO S-WORD
+    MOVE MY-NAME TO S-NAME
+    WRITE S-REC
+     INVALID KEY
+      SET ERR TO TRUE
+      
+      MOVE "誰かが先に書き込んでしまったようです。お茶飲んで一休みしてからやり直して下さい。" TO STAT
+      DISPLAY STAT UPON WINDOW
+      SET FIELD STAT TO HIGH-INTENSITY
+     NOT INVALID KEY
+      MOVE IN-WORD TO L-WORD(W-NUM)
+      MOVE MY-NAME TO L-NAME(W-NUM)
+      ADD 1 TO W-NUM
+    END-WRITE.

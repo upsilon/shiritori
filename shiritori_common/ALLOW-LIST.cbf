@@ -1,0 +1,9 @@
+*******************************************************************************
+* FILE NAME : J:\cobol\jisyu2\04 shiritori_common\ALLOW-LIST.cbf
+* KIND      : Úº°ÄÞŽd—l
+* 
+* CURRENCY SIGN IS \
+* DECIMAL-POINT IS COMMA : Žw’è‚È‚µ
+*******************************************************************************
+01 A-REC.
+ 02 A-DATA PIC X(02) OCCURS 200 TIMES.

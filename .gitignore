@@ -1,0 +1,5 @@
+work
+*.exp
+*.CBR
+*.exe
+*.lib

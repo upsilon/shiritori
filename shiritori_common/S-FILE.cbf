@@ -1,0 +1,10 @@
+*******************************************************************************
+* FILE NAME : J:\cobol\jisyu2\04 shiritori_common\S-FILE.cbf
+* KIND      : Úº°ÄÞŽd—l
+* 
+* CURRENCY SIGN IS \
+* DECIMAL-POINT IS COMMA : Žw’è‚È‚µ
+*******************************************************************************
+01 S-REC.
+ 02 S-WORD PIC X(50).
+ 02 S-NAME PIC X(20).
